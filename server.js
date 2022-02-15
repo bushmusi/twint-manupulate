@@ -30,8 +30,7 @@ app.get("/", (req, res) => {
 
 const router = (global.router = (express.Router()));
 app.use('/api/arsenal', require('./app/routes/arsenal.routes'));
-app.use('/api/analyse', require('./app/routes/analyse.routes'));
-app.use(router);
+app.use('/api', require('./app/routes/analyse.routes'));
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

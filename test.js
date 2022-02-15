@@ -1,15 +1,12 @@
-const { json } = require('express');
-var express = require('express');
-var app = express();
-
-app.get('/welcome',function(req,res){
-  msg = {
-    "Name": 'Bushra ',
-    "Age": 23
-  }
-  res.send(msg)
-})
-
-var server = app.listen(8000,function(){
-  console.log("Test Server is running");
-})
+var MongoClient = require('mongodb').MongoClient;  
+var url = "mongodb://localhost:27017/test";  
+MongoClient.connect(url, function(err, client) {  
+    if (err) throw err;  
+    let database = client.db('test');
+    database.collection('arsenal').find({user_id: {$eq: '1223532723052204032'}}).toArray((err,results)=>{
+      if(err) throw err;
+      results.forEach(element => {
+        console.log(element);  
+      });
+    })
+});  
