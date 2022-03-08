@@ -2,7 +2,7 @@ const { emit } = require('nodemon');
 const db = require('../models');
 
 var MongoClient = require('mongodb').MongoClient;  
-var url = "mongodb://localhost:27017/test"; 
+var url = "mongodb://localhost:27017/"; 
 
 exports.dbGetTable = (req,res) => {
 
@@ -49,23 +49,28 @@ exports.mapReduceTable = (req,res) => {
 
         if(err) throw err;
 
-        let database = client.db('test');
+        let database = client.db('twint');
         let table_name = req.body.table_name;
+        const query = req.body.query;
+        const map = emit(this.username,this.likes_count);
 
         database.collection(table_name).mapReduce(
-            function () {
-                emit(1,this.username)
+            function() {
+                emit(this.username, this.likes_count)
             },
             function(k,v) {
-                var result = {};
-                result.username = v;
-                return result
+                return Array.sum(v);
             },
-            { out: {inline: 1}},
+            { 
+                query: {
+                    likes_count: {$gt: 500}
+                },
+                out: {inline: 1}
+            },
             function(err,result) {
                 if(result) {
                     res.send({
-                        'result': result[0].value
+                        result
                     })
                 }
             }
@@ -77,11 +82,15 @@ exports.mapReduceTable = (req,res) => {
 exports.twintFilter = (req,res) => { 
     let res_list = []
     MongoClient.connect(url,(err,client) => {
+
         if(err) throw err;
-        let database = client.db('test');
+        const db_name = req.body.db_name
+        let database = client.db(db_name);
         let table_name = req.body.table_name;
+        console.log(table_name);
+
         database.collection(table_name).find({
-            likes_count: {$gt: 200}
+            hashtags: {$in: ['arsenal']}
         }).toArray(function(err,result){
             if(err) throw err;
             result.forEach((value,index) => {
@@ -91,7 +100,8 @@ exports.twintFilter = (req,res) => {
                     username: value.username,
                     name: value.name,
                     tweet: value.tweet,
-                    likes_count: value.likes_count
+                    likes_count: value.likes_count,
+                    hashtags: value.hashtags
                 }
                 res_list.push(tweeItem)
 
@@ -107,22 +117,31 @@ exports.twintFilter = (req,res) => {
 exports.dbMetadata = (req,res) => {
     let db_name = req.body.db_name
     MongoClient.connect(url,(err,client) =>{
+
         if(err) throw err;
+
         let database = client.db(db_name);
-        database.listCollections().toArray((info,name_list) => {
-            const str_list_new = name_list.map((val,index,arrName) => {
+        database.listCollections().toArray(async (info,name_list) => {
+
+
+            const str_list_new = name_list.map(async (val) => {
+
                 const coll_name = val.name;
-                let res_obj = {
+
+                const res_obj = {
                     name: coll_name,
                     type: val.type,
-                    count: ''
-                }
-                const num_doc = database.collection(coll_name).countDocuments().then((count)=>{
-                    console.log("collection:",coll_name,"count:", count);
-                    res_obj.count = count
-                })
+                    count: 0
+                };
+
+                count =database.collection(coll_name).estimatedDocumentCount();
+                console.log(await count.then((res) => res));
+                res_obj.count = await count.then((res) => res);
+                console.log(res_obj);
                 return res_obj
             });
+            console.log(await str_list_new[0].then((res) => {return res}));
+            
             res.send({
                 "db-name" : db_name,
                 "number of collection": str_list_new.length,
