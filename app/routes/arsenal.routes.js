@@ -1,29 +1,28 @@
-// module.exports = app => {
-const arsenal = require("../controllers/arsenal.controller.js");
+const router = require('express').Router();
 
-var router = require("express").Router();
+const arsenal = require('../controllers/arsenal.controller.js');
 
 // Create a new Tweet
-router.post("/", arsenal.create);
+router.post('/', arsenal.create);
 
 // Retrieve all arsenal
-router.get("/", arsenal.findAll);
+router.get('/', arsenal.findAll);
 
 // Retrieve all published arsenal
-router.get("/published", arsenal.findAllPublished);
+router.get('/published', arsenal.findAllPublished);
 
 // Retrieve a single Tweet with id
-router.get("/:id", arsenal.findOne);
+router.get('/:id', arsenal.findOne);
 
 // Update a Tweet with id
-router.put("/:id", arsenal.update);
+router.put('/:id', arsenal.update);
 
 // Delete a Tweet with id
-router.delete("/:id", arsenal.delete);
+router.delete('/:id', arsenal.delete);
 
 // Create a new Tweet
-router.delete("/", arsenal.deleteAll);
+router.delete('/', arsenal.deleteAll);
 
 // app.use('/api/arsenal', router);
-  // };
-module.exports = router
+// };
+module.exports = router;
