@@ -101,32 +101,23 @@ exports.twintFilter = (req, res) => {
   });
 };
 
-exports.dbMetadata = (req, res) => {
+exports.dbMetadata =async (req, res) => {
   const { dbName } = req.body;
-  MongoClient.connect(url, (err, client) => {
-    if (err) throw err;
-
-    const database = client.db(dbName);
-    database.listCollections().toArray(async (info, nameList) => {
-      const strListNew = nameList.map(async (val) => {
-        const collName = val.name;
-
-        const resObj = {
-          name: collName,
-          type: val.type,
-          count: 0,
+  const client =new MongoClient(url);
+  await client.connect();
+  const db = client.db(dbName);
+  
+  db.listCollections().toArray(async (err,sol) => {
+    if(sol){
+      let tableData =sol.map(async val => {
+        const count =await db.collection(val.name).countDocuments();
+        const obj = {
+          name: val.name,
+          count: count
         };
-
-        const count = database.collection(collName).estimatedDocumentCount();
-        resObj.count = await count.then((res) => res);
-        return resObj;
+        return obj;
       });
-
-      res.send({
-        'db-name': dbName,
-        'number of collection': strListNew.length,
-        'collection list: ': strListNew,
-      });
-    });
-  });
+      Promise.all(tableData).then( result => res.send(result));
+    }
+  })
 };
