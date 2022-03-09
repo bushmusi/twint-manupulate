@@ -4,7 +4,8 @@
   "description": "This for making crud operation using node and mongo",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
