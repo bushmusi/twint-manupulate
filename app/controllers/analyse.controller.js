@@ -10,13 +10,15 @@ exports.dbGetTable = (req, res) => {
   MongoClient.connect(url, (err, client) => {
     if (err) throw err;
 
-    const database = client.db('test');
-    const [tableName, params] = [req.body.tableName, req.body.params];
-    const queryParam = {};
-    for (const [key, value] of Object.entries(params)) {
-      queryParam[key] = value;
-    }
+    const database = client.db(req.body.dbName);
+    // const [tableName, params] = [req.body.tableName, req.body.params];
+    const { tableName, params } = req.body;
 
+    const queryParam = {};
+    Object.entries(params).forEach((value) => {
+      const [key, val] = value;
+      queryParam[key] = val;
+    });
     database.collection(tableName).find(
       queryParam,
     ).toArray((err, results) => {
@@ -31,7 +33,7 @@ exports.dbGetTable = (req, res) => {
       });
 
       res.send({
-        'Query Data': resList,
+        Result: resList,
       });
     });
   });
@@ -41,28 +43,28 @@ exports.mapReduceTable = (req, res) => {
   MongoClient.connect(url, (err, client) => {
     if (err) throw err;
 
-    const database = client.db('twint');
-    const { tableName } = req.body;
-    const { query } = req.body;
-    const map = emit(this.username, this.likes_count);
+    const { tableName, dbName } = req.body;
+    const database = client.db(dbName);
 
-    database.collection(tableName).mapReduce(
-      function () {
+    database.collection(tableName).mapReduce(/* eslint-disable */
+      function () { /* eslint-disable */
         emit(this.username, this.likes_count);
       },
-      (k, v) => Array.sum(v),
+      function (k, v) {
+        return Array.sum(v)
+      },
       {
         query: {
-          likes_count: { $gt: 500 },
+          $and:
+          [
+            {likes_count: { $gt: 500 }},
+            {date: '2021-12-31'}
+          ]
         },
         out: { inline: 1 },
       },
       (err, result) => {
-        if (result) {
-          res.send({
-            result,
-          });
-        }
+        result ? res.send(result) : err
       },
     );
   });
@@ -72,10 +74,8 @@ exports.twintFilter = (req, res) => {
   const resList = [];
   MongoClient.connect(url, (err, client) => {
     if (err) throw err;
-    const { dbName } = req.body;
+    const { dbName, tableName } = req.body;
     const database = client.db(dbName);
-    const { tableName } = req.body;
-    console.log(tableName);
 
     database.collection(tableName).find({
       hashtags: { $in: ['arsenal'] },
@@ -83,7 +83,7 @@ exports.twintFilter = (req, res) => {
       if (err) throw err;
       result.forEach((value, index) => {
         const tweeItem = {
-          id: value._id,
+          id: value.id,
           user_id: value.user_id,
           username: value.username,
           name: value.name,
@@ -118,12 +118,9 @@ exports.dbMetadata = (req, res) => {
         };
 
         const count = database.collection(collName).estimatedDocumentCount();
-        // console.log(await count.then((res) => res));
         resObj.count = await count.then((res) => res);
-        // console.log(resObj);
         return resObj;
       });
-      // console.log(await strListNew[0].then((res) => res));
 
       res.send({
         'db-name': dbName,

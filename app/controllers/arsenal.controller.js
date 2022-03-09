@@ -1,4 +1,4 @@
-const db = require('../models');
+const db = require('../models/index.js');
 
 const Arsenal = db.arsenal;
 
@@ -51,7 +51,6 @@ exports.create = (req, res) => {
 exports.findAll = (req, res) => {
   const { tweet } = req.query;
   const condition = tweet ? { tweet: { $regex: new RegExp(tweet), $options: 'i' } } : {};
-  console.log(condition);
   Arsenal.find(condition)
     .then((data) => {
       res.send(data);
@@ -72,7 +71,6 @@ exports.findOne = (req, res) => {
       if (!data) {
         res.status(404).send({ message: `Not found tweet with id ${id}` });
       } else {
-        console.log(data.user_id);
         res.send(data);
       }
     })
