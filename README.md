@@ -1,59 +1,44 @@
-![](https://img.shields.io/badge/Microverse-blueviolet)
+# Twint Data Analayse
 
-# Project Name
+> This project is about analysing tweeter scrapped data. In this project I have used ES6, Node js and Express. Using this project you can do CRUD operation and some filtering mechanism
 
-> One paragraph statement about the project.
-
-![screenshot](./app_screenshot.png)
-
-Additional description about the project and its features.
 
 ## Built With
 
-- Major languages
-- Frameworks
-- Technologies used
-
-## Live Demo
-
-[Live Demo Link](https://livedemo.com)
+- ES6
+- Nodejs and Express
+- Mongodb and Linters
 
 
 ## Getting Started
-
-**This is an example of how you may give instructions on setting up your project locally.**
-**Modify this file to match your project, remove sections that don't apply. For example: delete the testing section if the currect project doesn't require testing.**
 
 
 To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
+- Have a good knowledge on how to use REST API.
+- To check _api_ use postman. [link to download](https://www.postman.com/downloads/)
+- Have VSCode or other text editor installed. [Link to download VSCode](https://code.visualstudio.com/download)
+- Install node package. [Link to download node](https://nodejs.org/en/download/)
+- Have git installed.[Link to download git](https://git-scm.com/downloads)
+- Create a github repository.
 
 ### Setup
 
-### Install
-
-### Usage
+- `git clone https://github.com/bushmusi/twint-manupulate`
+- `cd twint-manupulate/`
+- Install packages:  `npm install`
+- Start Live Server: `npm run watch`
 
 ### Run tests
 
-### Deployment
+- `npx eslint .`
 
+## Author
 
-
-## Authors
-
-👤 **Author1**
-
-- GitHub: [@githubhandle](https://github.com/githubhandle)
-- Twitter: [@twitterhandle](https://twitter.com/twitterhandle)
-- LinkedIn: [LinkedIn](https://linkedin.com/in/linkedinhandle)
-
-👤 **Author2**
-
-- GitHub: [@githubhandle](https://github.com/githubhandle)
-- Twitter: [@twitterhandle](https://twitter.com/twitterhandle)
-- LinkedIn: [LinkedIn](https://linkedin.com/in/linkedinhandle)
+- GitHub: [@githubhandle](https://github.com/bushmusi)
+- Twitter: [@twitterhandle](https://twitter.com/bushera_mestofa)
+- LinkedIn: [LinkedIn](https://www.linkedin.com/in/bushra-mustofa-2620671b7/)
 
 ## 🤝 Contributing
 
@@ -64,12 +49,6 @@ Feel free to check the [issues page](../../issues/).
 ## Show your support
 
 Give a ⭐️ if you like this project!
-
-## Acknowledgments
-
-- Hat tip to anyone whose code was used
-- Inspiration
-- etc
 
 ## 📝 License
 
