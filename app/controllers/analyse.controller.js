@@ -1,5 +1,6 @@
 const { emit } = require('nodemon');
 const { MongoClient } = require('mongodb');
+const cli = require('nodemon/lib/cli');
 const db = require('../models/index.js');
 
 const url = 'mongodb://localhost:27017/';
@@ -10,9 +11,8 @@ exports.dbGetTable = (req, res) => {
   MongoClient.connect(url, (err, client) => {
     if (err) throw err;
 
-    const database = client.db(req.body.dbName);
-    // const [tableName, params] = [req.body.tableName, req.body.params];
-    const { tableName, params } = req.body;
+    const { tableName, params, dbName: databaseName } = req.body;
+    const database = client.db(databaseName);
 
     const queryParam = {};
     Object.entries(params).forEach((value) => {
@@ -43,28 +43,33 @@ exports.mapReduceTable = (req, res) => {
   MongoClient.connect(url, (err, client) => {
     if (err) throw err;
 
-    const { tableName, dbName } = req.body;
-    const database = client.db(dbName);
+    const { tableName, dbName: databaseName } = req.body;
+    const database = client.db(databaseName);
+    const mapCount = function () { /* eslint-disable */
+      emit(this.username, this.likes_count);
+    };
+
+    const reduceCount = function (k,v) {
+      return Array.sum(v);
+    }
+
+    const optParam =       {
+      query: {
+        $and:
+        [
+          {likes_count: { $gt: 500 }},
+          {date: '2021-12-31'}
+        ]
+      },
+      out: { inline: 1 },
+    };
 
     database.collection(tableName).mapReduce(/* eslint-disable */
-      function () { /* eslint-disable */
-        emit(this.username, this.likes_count);
-      },
-      function (k, v) {
-        return Array.sum(v)
-      },
-      {
-        query: {
-          $and:
-          [
-            {likes_count: { $gt: 500 }},
-            {date: '2021-12-31'}
-          ]
-        },
-        out: { inline: 1 },
-      },
+      mapCount,
+      reduceCount,
+      optParam,
       (err, result) => {
-        result ? res.send(result) : err
+        result ? res.send(result) : res.send(err)
       },
     );
   });
@@ -72,8 +77,10 @@ exports.mapReduceTable = (req, res) => {
 
 exports.twintFilter = (req, res) => {
   const resList = [];
+
   MongoClient.connect(url, (err, client) => {
     if (err) throw err;
+
     const { dbName, tableName } = req.body;
     const database = client.db(dbName);
 
@@ -81,7 +88,8 @@ exports.twintFilter = (req, res) => {
       hashtags: { $in: ['arsenal'] },
     }).toArray((err, result) => {
       if (err) throw err;
-      result.forEach((value, index) => {
+
+      result.forEach((value) => {
         const tweeItem = {
           id: value.id,
           user_id: value.user_id,
